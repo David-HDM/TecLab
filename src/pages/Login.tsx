@@ -10,6 +10,8 @@ const inputClass =
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { user, signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,14 +21,33 @@ export default function Login() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await signIn(email, password);
-    navigate(from, { replace: true });
+    setError("");
+    setSubmitting(true);
+    try {
+      await signIn(email, password);
+      navigate(from, { replace: true });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      setError(
+        msg.includes("Invalid login credentials")
+          ? "Correo o contraseña incorrectos."
+          : msg.includes("Email not confirmed")
+          ? "Debes confirmar tu correo antes de iniciar sesión."
+          : "No se pudo iniciar sesión. Intenta de nuevo."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <PageContainer>
+    <PageContainer >
+      <div>
+        
+      </div>
       <div className="mx-auto max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-bold text-blue-900">Iniciar sesión</h1>
+        <img src="/teclab-logo-pack/svg/teclab-vertical-lema-color.svg" alt="TecLab" />
+        <h1 className="text-2xl font-bold text-blue-900 mt-8">Iniciar sesión</h1>
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -48,6 +69,12 @@ export default function Login() {
           ¿No tienes cuenta?{" "}
           <Link to="/registro" className="font-semibold text-blue-700 hover:underline">
             Regístrate
+          </Link>
+        </p>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          ¿Olvidaste tu contraseña?{" "}
+          <Link to="/recuperar" className="font-semibold text-blue-700 hover:underline">
+            Recupérala aquí
           </Link>
         </p>
       </div>

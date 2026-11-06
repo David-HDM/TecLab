@@ -8,12 +8,16 @@ import TopicDetail from "../pages/TopicDetail";
 import Practices from "../pages/Practices";
 import PracticeRunner from "../pages/PracticeRunner";
 import Quiz from "../pages/Quiz";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Register />} />
+      <Route path="/recuperar" element={<ForgotPassword />} />
+      <Route path="/restablecer-contrasena" element={<ResetPassword />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
