@@ -7,21 +7,24 @@ import type { User } from "../types/user";
 interface AuthState {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (data: RegisterData) => Promise<void>;
+  signIn: (numeroControl: string, password: string) => Promise<void>;
+  signUp: (data: RegisterData) => Promise<{ needsEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>(() => ({
   user: null,
   loading: true, // true hasta restaurar la sesión guardada
-  signIn: async (email, password) => {
-    await authService.signIn(email, password);
+  signIn: async (numeroControl, password) => {
+    await authService.signIn(numeroControl, password);
     useAuthStore.setState({ user: await authService.getCurrentUser() });
   },
   signUp: async (data) => {
-    await authService.signUp(data);
-    useAuthStore.setState({ user: await authService.getCurrentUser() });
+    const result = await authService.signUp(data);
+    if (!result.needsEmailConfirmation) {
+      useAuthStore.setState({ user: await authService.getCurrentUser() });
+    }
+    return result;
   },
   signOut: async () => {
     await authService.signOut();

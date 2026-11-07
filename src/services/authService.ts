@@ -1,5 +1,6 @@
 import { supabase } from "./supabaseClient";
 import type { Profile, User } from "../types/user";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 
 export interface RegisterData {
   nombres: string;
@@ -12,32 +13,54 @@ export interface RegisterData {
   password: string;
 }
 
-export async function signUp(data: RegisterData): Promise<void> {
+export async function signUp(data: RegisterData): Promise<{ needsEmailConfirmation: boolean }> {
   const { data: res, error } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
+    options: {
+      emailRedirectTo: `${window.location.origin}/login`,
+      
+      data: {
+        nombres: data.nombres,
+        apellido_paterno: data.apellido_paterno,
+        apellido_materno: data.apellido_materno,
+        carrera: data.carrera,
+        semestre: data.semestre,
+        numero_control: data.numero_control,
+      },
+    },
   });
   if (error) throw error;
   if (!res.user) throw new Error("No se pudo crear el usuario.");
-  if (!res.session) {
-    throw new Error("Cuenta creada, pero requiere confirmar el correo antes de continuar.");
-  }
 
-  const { error: profileError } = await supabase.from("profiles").insert({
-    id: res.user.id,
-    nombres: data.nombres,
-    apellido_paterno: data.apellido_paterno,
-    apellido_materno: data.apellido_materno,
-    carrera: data.carrera,
-    semestre: data.semestre,
-    numero_control: data.numero_control,
-  });
-  if (profileError) throw profileError;
+  if (res.user.identities?.length === 0) throw new Error("User already registered");
+
+  return { needsEmailConfirmation: !res.session };
 }
 
-export async function signIn(email: string, password: string): Promise<void> {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
+export async function signIn(numeroControl: string, password: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke("login-numero-control", {
+    body: { numero_control: numeroControl, password },
+  });
+
+  if (error) {
+    let codigo = "error_desconocido";
+    if (error instanceof FunctionsHttpError) {
+      try {
+        const cuerpo = await error.context.json();
+        codigo = cuerpo.error ?? codigo;
+      } catch {
+        /* ignorar */
+      }
+    }
+    throw new Error(codigo);
+  }
+
+  const { error: sessionError } = await supabase.auth.setSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+  });
+  if (sessionError) throw sessionError;
 }
 
 export async function signOut(): Promise<void> {

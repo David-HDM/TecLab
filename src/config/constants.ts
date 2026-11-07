@@ -11,3 +11,5 @@ export const CARRERAS = [
   "Ingeniería en Administración",
   "Ingeniería en Ciencia de Datos"
 ];
+
+export const SEMESTRES = Array.from({ length: 12 }, (_, i) => i + 1);

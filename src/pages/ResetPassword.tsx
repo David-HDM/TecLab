@@ -2,30 +2,48 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import PageContainer from "../components/layout/PageContainer";
 import Button from "../components/ui/Button";
+import PasswordInput from "../components/ui/PasswordInput";
 import { useAuth } from "../hooks/useAuth";
 import { updatePassword } from "../services/authService";
-
-const inputClass =
-  "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700";
+import {
+  PASSWORD_MAX,
+  passwordChecks,
+  validatePassword,
+  validatePasswordConfirm,
+} from "../utils/validators";
 
 export default function ResetPassword() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [touched, setTouched] = useState({ password: false, confirm: false });
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+
+  const passwordError = validatePassword(password);
+  const confirmError = validatePasswordConfirm(password, confirm);
+  const showPasswordError = touched.password || submitted ? passwordError : "";
+  const showConfirmError = touched.confirm || submitted ? confirmError : "";
 
   if (loading) return null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (password !== confirm) {
-      setError("Las contraseñas no coinciden.");
+    setSubmitted(true);
+    setError("");
+
+    if (passwordError) {
+      document.getElementById("password")?.focus();
       return;
     }
-    setError("");
+    if (confirmError) {
+      document.getElementById("confirm")?.focus();
+      return;
+    }
+
     setSubmitting(true);
     try {
       await updatePassword(password);
@@ -58,35 +76,53 @@ export default function ResetPassword() {
         ) : done ? (
           <p className="mt-6 text-green-700">Contraseña actualizada. Redirigiendo...</p>
         ) : (
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Nueva contraseña
               </label>
-              <input
+              <PasswordInput
                 id="password"
-                type="password"
-                minLength={6}
-                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={inputClass}
+                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                maxLength={PASSWORD_MAX}
+                autoComplete="new-password"
+                aria-invalid={!!showPasswordError}
               />
+              {password.length > 0 && (
+                <ul className="mt-2 space-y-1 text-sm">
+                  {passwordChecks(password).map((c) => (
+                    <li key={c.label} className={c.ok ? "text-green-700" : "text-gray-500"}>
+                      {c.ok ? "✓" : "○"} {c.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {showPasswordError && <p className="mt-1 text-sm text-red-600">{showPasswordError}</p>}
             </div>
+
             <div>
               <label htmlFor="confirm" className="block text-sm font-medium text-gray-700">
                 Confirmar contraseña
               </label>
-              <input
+              <PasswordInput
                 id="confirm"
-                type="password"
-                required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className={inputClass}
+                onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+                maxLength={PASSWORD_MAX}
+                autoComplete="new-password"
+                aria-invalid={!!showConfirmError}
               />
+              {showConfirmError && <p className="mt-1 text-sm text-red-600">{showConfirmError}</p>}
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            {error && (
+              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+                {error}
+              </p>
+            )}
             <Button type="submit" fullWidth disabled={submitting}>
               {submitting ? "Guardando..." : "Guardar contraseña"}
             </Button>
