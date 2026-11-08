@@ -11,10 +11,9 @@ const helper = createColumnHelper<TopicProgress>();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const columns: ColumnDef<TopicProgress, any>[] = [
-  helper.accessor("titulo", { header: "Tema" }),
-  helper.accessor("progreso", { header: "Progreso", cell: (i) => `${i.getValue()}%` }),
+  helper.accessor("titulo", { header: "Práctica" }),
   helper.accessor("mejorPuntaje", {
-    header: "Mejor puntaje",
+    header: "Mejor puntaje en Quiz",
     cell: (i) => (i.getValue() === null ? "—" : `${i.getValue()}%`),
   }),
 ];
@@ -23,7 +22,7 @@ export default function TopicProgressTable({ data }: { data: TopicProgress[] }) 
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto w-full">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-gray-200 text-gray-600">
           {table.getHeaderGroups().map((hg) => (

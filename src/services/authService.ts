@@ -92,6 +92,7 @@ export async function getCurrentUser(): Promise<User | null> {
     id: authUser.id,
     email,
     nombre: profile?.nombres ?? email.split("@")[0],
+    nombre_completo: profile ? `${profile.nombres} ${profile.apellido_paterno} ${profile.apellido_materno}` : email.split("@")[0],
     profile,
   };
 }

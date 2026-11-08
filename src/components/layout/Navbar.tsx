@@ -30,7 +30,7 @@ export default function Navbar() {
           <>
             {/* Escritorio */}
             <div className="hidden items-center gap-3 md:flex">
-              <span className="text-sm text-gray-600">{user.nombre}</span>
+              <span className="text-sm text-gray-600">{user.nombre_completo}</span>
               <button
                 onClick={handleSignOut}
                 className="rounded-md border border-blue-700 px-3 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-50"

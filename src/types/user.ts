@@ -13,4 +13,5 @@ export interface User {
   email: string;
   nombre: string; // nombres del perfil; así Navbar y Dashboard siguen funcionando
   profile: Profile | null;
+  nombre_completo: string;
 }

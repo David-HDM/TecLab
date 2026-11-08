@@ -1,7 +1,6 @@
 export const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard" },
-  { to: "/temas", label: "Temas" },
-  { to: "/practicas", label: "Prácticas" },
+  { to: "/laboratorios", label: "Laboratorios" },
 ];
 
 export const CARRERAS = [
@@ -11,5 +10,22 @@ export const CARRERAS = [
   "Ingeniería en Administración",
   "Ingeniería en Ciencia de Datos"
 ];
+
+export const LABORATORIOS = [
+
+  "Laboratorio de Redes y Telecomunicaciones",
+  "Laboratorio de Desarrollo de Software",
+  "Laboratorio de Inteligencia Artificial",
+  "Laboratorio de Microcontroladores y Electrónica",
+  
+]
+
+export const NIVELES = [
+
+  "Principiante",
+  "Intermedio",
+  "Avanzado",
+  
+]
 
 export const SEMESTRES = Array.from({ length: 12 }, (_, i) => i + 1);
