@@ -10,6 +10,8 @@ import PracticeRunner from "../pages/PracticeRunner";
 import Quiz from "../pages/Quiz";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
+import Laboratories from "../pages/Laboratories";
+import LabDetail from "../pages/LabDetail";
 
 export default function AppRouter() {
   return (
@@ -22,7 +24,9 @@ export default function AppRouter() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/temas" element={<Topics />} />
+        <Route path="/laboratorios" element={<Laboratories />} />
         <Route path="/temas/:topicId" element={<TopicDetail />} />
+        <Route path="/laboratorios/:labId" element={<LabDetail />} />
         <Route path="/practicas" element={<Practices />} />
         <Route path="/practicas/:practiceId" element={<PracticeRunner />} />
         <Route path="/evaluacion/:topicId" element={<Quiz />} />

@@ -1,12 +1,20 @@
 import type { Topic, TopicProgress } from "../types/topic";
 import type { Practice } from "../types/practice";
 import type { Question } from "../types/quiz";
+import type { Lab } from "../types/lab";
+
+export const labs: Lab[] = [
+  { id: "redes", titulo: "Redes y Telecomunicaciones", descripcion: "Aquí aprenderás redes", imageURL: "/labs/redes.jpg"},
+  { id: "software", titulo: "Desarrollo de Software", descripcion: "Aquí aprenderás herramientas de programación",imageURL: "/labs/software.avif"},
+  { id: "ia", titulo: "Inteligencia Artificial", descripcion: "Aquí aprenderás a programar IAs",imageURL: "/labs/ia.jpg"},
+  { id: "microcontroladores", titulo: "Microcontroladores y Electrónica", descripcion: "Aquí aprenderás a programar microcontroladores", imageURL: "/labs/micro.jpg"},
+];
 
 export const topics: Topic[] = [
-  { id: "modelo-osi", titulo: "Modelo OSI", descripcion: "Las siete capas y sus funciones." },
-  { id: "direccionamiento-ip", titulo: "Direccionamiento IP y subredes", descripcion: "Clases, máscaras y cálculo de subredes." },
-  { id: "enrutamiento", titulo: "Enrutamiento", descripcion: "Tablas de rutas y reenvío de paquetes." },
-  { id: "dns", titulo: "DNS", descripcion: "Resolución de nombres y tipos de registros." },
+  { id: "modelo-osi", labId: "redes", titulo: "Modelo OSI", descripcion: "Las siete capas y sus funciones." },
+  { id: "direccionamiento-ip", labId: "redes", titulo: "Direccionamiento IP y subredes", descripcion: "Clases, máscaras y cálculo de subredes." },
+  { id: "enrutamiento", labId: "redes", titulo: "Enrutamiento", descripcion: "Tablas de rutas y reenvío de paquetes." },
+  { id: "dns", labId: "redes", titulo: "DNS", descripcion: "Resolución de nombres y tipos de registros." },
 ];
 
 export const practices: Practice[] = [

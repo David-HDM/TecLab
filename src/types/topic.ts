@@ -1,5 +1,6 @@
 export interface Topic {
   id: string;
+  labId: string;
   titulo: string;
   descripcion: string;
 }
