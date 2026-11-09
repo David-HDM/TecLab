@@ -10,8 +10,9 @@ import PracticeRunner from "../pages/PracticeRunner";
 import Quiz from "../pages/Quiz";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPassword from "../pages/ResetPassword";
-import Laboratories from "../pages/Laboratories";
 import LabDetail from "../pages/LabDetail";
+import Explorer from "../pages/Explorer";
+import MyLaboratories from "../pages/MyLaboratories";
 
 export default function AppRouter() {
   return (
@@ -22,14 +23,28 @@ export default function AppRouter() {
       <Route path="/restablecer-contrasena" element={<ResetPassword />} />
 
       <Route element={<ProtectedRoute />}>
+
+        {/* Para navegar al Dashboard */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/temas" element={<Topics />} />
-        <Route path="/laboratorios" element={<Laboratories />} />
-        <Route path="/temas/:topicId" element={<TopicDetail />} />
-        <Route path="/laboratorios/:labId" element={<LabDetail />} />
-        <Route path="/practicas" element={<Practices />} />
-        <Route path="/practicas/:practiceId" element={<PracticeRunner />} />
+
+        {/* Para navegar a Mis Laboratorios */}
+        <Route path="/mis-laboratorios" element={<MyLaboratories />} />
+
+        {/* Para navegar a Explorar */}
+        <Route path="/explorar" element={<Explorer />} />
+
+
+        {/* Para navegar a un Laboratorio */}
+        <Route path="/:labId" element={<LabDetail />} />
+
+        {/* Para navegar a un Tema */}
+        <Route path="/:labId/:topicId" element={<TopicDetail />} />
+
+        {/* Para navegar a una Practica */}
+        <Route path="/:labId/:topicId/:practiceId" element={<PracticeRunner />} />
+
         <Route path="/evaluacion/:topicId" element={<Quiz />} />
+
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

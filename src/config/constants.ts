@@ -1,6 +1,7 @@
 export const NAV_LINKS = [
   { to: "/dashboard", label: "Dashboard" },
-  { to: "/laboratorios", label: "Laboratorios" },
+  { to: "/mis-laboratorios", label: "Mis Laboratorios" },
+  { to: "/explorar", label: "Explorar" },
 ];
 
 export const CARRERAS = [

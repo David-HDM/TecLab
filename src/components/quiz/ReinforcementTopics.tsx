@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import Card from "../ui/Card";
+import InlineText from "../ui/InlineText";
 import type { Question } from "../../types/quiz";
 
 interface ReinforcementTopicsProps {
@@ -23,7 +24,9 @@ export default function ReinforcementTopics({ failed, topicId, topicTitle }: Rei
         {failed.map((q) => (
           <li key={q.id} className="border-l-4 border-red-400 pl-3">
             <p className="font-semibold text-gray-800">{q.concepto}</p>
-            <p className="mt-1 text-sm text-gray-600">{q.explicacion}</p>
+            <p className="mt-1 text-sm text-gray-600">
+              <InlineText text={q.explicacion} />
+            </p>
           </li>
         ))}
       </ul>

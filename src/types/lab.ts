@@ -1,6 +1,9 @@
 export interface Lab {
   id: string;
   titulo: string;
-  descripcion: string;
-  imageURL: string;
+  descripcion_corta: string;
+  imgOferta: string;
+  imgDetalle: string;
+  estatus: string;
+  descripcion_larga: string;
 }

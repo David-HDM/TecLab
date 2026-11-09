@@ -1,4 +1,5 @@
 import Card from "../ui/Card";
+import InlineText from "../ui/InlineText";
 import type { Question } from "../../types/quiz";
 
 interface QuestionCardProps {
@@ -15,7 +16,9 @@ export default function QuestionCard({ question, index, total, selected, onSelec
       <p className="text-sm font-semibold text-gray-500">
         Pregunta {index + 1} de {total}
       </p>
-      <h2 className="mt-2 text-lg font-semibold text-blue-900">{question.enunciado}</h2>
+      <h2 className="mt-2 text-lg font-semibold text-blue-900">
+        <InlineText text={question.enunciado} />
+      </h2>
 
       <div className="mt-4 space-y-2">
         {question.opciones.map((opcion, i) => (
@@ -28,7 +31,7 @@ export default function QuestionCard({ question, index, total, selected, onSelec
                 : "border-gray-300 hover:bg-gray-50"
             }`}
           >
-            {opcion}
+            <InlineText text={opcion} />
           </button>
         ))}
       </div>
