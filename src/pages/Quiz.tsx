@@ -8,6 +8,7 @@ import ReinforcementTopics from "../components/quiz/ReinforcementTopics";
 import { api } from "../api/catalog";
 import type { QuizAttempt, Question } from "../types/quiz";
 
+// Cuestionario con guardado de resultados y recomendaciones de reforzamiento.
 export default function Quiz() {
   const { practiceId } = useParams();
   const id = practiceId;
@@ -26,7 +27,7 @@ export default function Quiz() {
   const [attemptError, setAttemptError] = useState("");
   const [savedAttempt, setSavedAttempt] = useState<QuizAttempt | null>(null);
 
-  // 👇 Petición a la base de datos
+  // Carga preguntas, título y ruta de regreso al simulador.
   useEffect(() => {
     let active = true;
     if (!id) {

@@ -9,6 +9,7 @@ import { sanitizeDigits } from "../utils/validators";
 const inputClass =
   "mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700";
 
+// Inicio de sesión con número de control y redirección a la ruta solicitada.
 export default function Login() {
   const [numeroControl, setNumeroControl] = useState("");
   const [password, setPassword] = useState("");
@@ -35,16 +36,16 @@ export default function Login() {
     try {
       await signIn(numeroControl, password);
       navigate(from, { replace: true });
-    } catch (err) {
-      const codigo = err instanceof Error ? err.message : "";
+    } catch (error) {
+      const codigo = error instanceof Error ? error.message : "";
       setError(
         codigo === "credenciales_invalidas"
-        ? "Número de control o contraseña incorrectos."
-        : codigo === "email_no_confirmado"
-        ? "Debes confirmar tu correo antes de iniciar sesión."
-        : codigo === "demasiados_intentos"
-        ? "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos."
-        : "No se pudo iniciar sesión. Intenta de nuevo."
+          ? "Número de control o contraseña incorrectos."
+          : codigo === "email_no_confirmado"
+            ? "Debes confirmar tu correo antes de iniciar sesión."
+            : codigo === "demasiados_intentos"
+              ? "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos."
+              : "No se pudo iniciar sesión. Intenta de nuevo."
       );
     } finally {
       setSubmitting(false);

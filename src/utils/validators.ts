@@ -44,9 +44,7 @@ export function validateControlNumber(value: string, now: Date = new Date()): st
   const current = now.getFullYear();
   const year = 2000 + Number(value.slice(0, 2));
   if (year > current || year < current - 6) {
-    const min = String(current - 6).slice(2);
-    const max = String(current).slice(2);
-    return `El número de control no es válido.`;
+    return "El número de control no es válido.";
   }
   return "";
 }

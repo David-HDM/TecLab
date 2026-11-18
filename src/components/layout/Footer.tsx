@@ -1,3 +1,4 @@
+// Pie de página institucional compartido por todas las rutas.
 export default function Footer() {
   return (
     <footer className="border-t border-gray-200 bg-white">

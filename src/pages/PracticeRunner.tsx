@@ -1,8 +1,8 @@
 import { Link, useParams } from "react-router";
-import { useEffect, useRef, useState, ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import PageContainer from "../components/layout/PageContainer";
-import { Practice } from "../types/practice";
-import { api } from "../api/catalog"; // 👈 Importamos tu API
+import type { Practice } from "../types/practice";
+import { api } from "../api/catalog";
 import DslPractice from "../components/practices/DslPractice";
 import SshPractice from "../components/practices/SshPractice";
 import ProxmoxPractice from "../components/practices/ProxmoxPractice";
@@ -13,20 +13,21 @@ const views: Record<string, ComponentType<{ practice: Practice }>> = {
   proxmox: ProxmoxPractice,
 };
 
+// Carga el simulador según el identificador de práctica y controla pantalla completa.
 export default function PracticeRunner() {
   const { labId, topicId, practiceId } = useParams();
-  
-  // 👇 Estados para guardar la práctica y saber si está cargando
+
+  // Estado de carga de la práctica.
   const [practice, setPractice] = useState<Practice | null>(null);
   const [loading, setLoading] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 👇 useEffect para pedir la práctica a PostgreSQL cuando cambie el ID
+  // Recupera la práctica cuando cambia el identificador de ruta.
   useEffect(() => {
     if (!practiceId) return;
-    
+
     setLoading(true);
     api.getPractice(practiceId)
       .then((data) => {
@@ -59,7 +60,7 @@ export default function PracticeRunner() {
     }
   };
 
-  // 👇 Mientras carga, mostramos un mensaje
+  // Estado de espera mientras responde la API.
   if (loading) {
     return (
       <PageContainer>
@@ -68,9 +69,9 @@ export default function PracticeRunner() {
     );
   }
 
-  // 👇 Si terminó de cargar pero no hay práctica o no hay vista, mostramos el error
+  // Evita renderizar una práctica sin un simulador registrado.
   const View = practice ? views[practice.id] : undefined;
-  
+
   if (!practice || !View) {
     return (
       <PageContainer>

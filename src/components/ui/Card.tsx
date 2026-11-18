@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+// Contenedor visual reutilizable con título opcional.
 interface CardProps {
   title?: string;
   children: ReactNode;

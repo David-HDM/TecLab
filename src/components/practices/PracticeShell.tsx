@@ -8,6 +8,7 @@ import { ACCENT } from "./accent";
 import type { PracticeLab } from "../../hooks/usePracticeSession";
 import type { Practice } from "../../types/practice";
 
+// Estructura compartida de guía, topología, objetivos, consola y reinicio.
 interface PracticeShellProps {
   practice: Practice;
   lab: PracticeLab;

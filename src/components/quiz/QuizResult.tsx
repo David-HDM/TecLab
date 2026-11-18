@@ -1,6 +1,7 @@
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 
+// Resultado porcentual y acción para repetir el cuestionario.
 interface QuizResultProps {
   correct: number;
   total: number;

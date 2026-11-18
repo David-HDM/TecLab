@@ -12,38 +12,29 @@ import LabDetail from "../pages/LabDetail";
 import Explorer from "../pages/Explorer";
 import MyLaboratories from "../pages/MyLaboratories";
 
+// Rutas públicas de cuenta y rutas privadas del contenido educativo.
 export default function AppRouter() {
   return (
     <Routes>
+      {/* Flujos públicos de autenticación. */}
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Register />} />
       <Route path="/recuperar" element={<ForgotPassword />} />
       <Route path="/restablecer-contrasena" element={<ResetPassword />} />
 
       <Route element={<ProtectedRoute />}>
-
-        {/* Para navegar al Dashboard */}
+        {/* Inicio, catálogo y laboratorios del usuario. */}
         <Route path="/dashboard" element={<Dashboard />} />
-
-        {/* Para navegar a Mis Laboratorios */}
         <Route path="/mis-laboratorios" element={<MyLaboratories />} />
-
-        {/* Para navegar a Explorar */}
         <Route path="/explorar" element={<Explorer />} />
 
-
-        {/* Para navegar a un Laboratorio */}
+        {/* Laboratorio → tema → simulador. */}
         <Route path="/:labId" element={<LabDetail />} />
-
-        {/* Para navegar a un Tema */}
         <Route path="/:labId/:topicId" element={<TopicDetail />} />
-
-        {/* Para navegar a una Practica */}
         <Route path="/:labId/:topicId/:practiceId" element={<PracticeRunner />} />
 
-        {/* Para navegar al Quiz */}
+        {/* Evaluación de reforzamiento por práctica. */}
         <Route path="/evaluacion/:practiceId" element={<Quiz />} />
-
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

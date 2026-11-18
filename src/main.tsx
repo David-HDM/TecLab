@@ -5,6 +5,7 @@ import App from "./App";
 import "./index.css";
 import { initAuth } from "./store/authStore";
 
+// Restaura la sesión antes de montar la aplicación React.
 initAuth();
 
 createRoot(document.getElementById("root")!).render(

@@ -3,6 +3,7 @@ import Card from "../ui/Card";
 import InlineText from "../ui/InlineText";
 import type { Question } from "../../types/quiz";
 
+// Explicaciones de respuestas incorrectas y enlace para volver a practicar.
 interface ReinforcementTopicsProps {
   failed: Question[];
   practicePath: string;

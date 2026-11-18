@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 const { Pool } = pkg;
 const backendDirectory = dirname(fileURLToPath(import.meta.url));
+
+// Carga configuración local del backend y, como alternativa, la del frontend.
 dotenv.config({ path: resolve(backendDirectory, '.env') });
 dotenv.config({ path: resolve(backendDirectory, '..', '.env') });
 
@@ -15,6 +17,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 app.use(express.json({ limit: '64kb' }));
 
+// Valida tokens de Supabase y expone el ID autenticado a rutas protegidas.
 async function requireUser(req, res, next) {
   const token = req.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -54,6 +57,7 @@ app.get('/api/health', async (_req, res) => {
   res.json({ status: 'ok', dbTime: result.rows[0].now });
 });
 
+// Catálogo educativo: laboratorios, temas, prácticas y preguntas.
 app.get('/api/labs', async (_req, res) => {
   res.json((await pool.query('SELECT * FROM labs ORDER BY id')).rows);
 });
@@ -105,6 +109,7 @@ app.get('/api/questions', async (req, res) => {
   )).rows);
 });
 
+// Datos del dashboard limitados al usuario autenticado.
 app.get('/api/dashboard/topics', requireUser, async (req, res) => {
   const { lab_id: labId } = req.query;
   if (typeof labId !== 'string' || !labId) {
@@ -204,6 +209,7 @@ app.get('/api/dashboard/quiz-history', requireUser, async (req, res) => {
   res.json(result.rows);
 });
 
+// Guardado de progreso y resultados de evaluaciones.
 app.put('/api/practices/:id/progress', requireUser, async (req, res) => {
   const { objetivos_completados: completedObjectives, completada } = req.body ?? {};
   if (
@@ -326,6 +332,7 @@ app.post('/api/practices/:id/quiz-attempts', requireUser, async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
+// Manejo común de errores de API y arranque del servidor.
 app.use((error, _req, res, next) => {
   console.error(error);
   if (res.headersSent) return next(error);

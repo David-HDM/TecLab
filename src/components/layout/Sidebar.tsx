@@ -1,6 +1,7 @@
 import { NavLink } from "react-router";
 import { NAV_LINKS } from "../../config/constants";
 
+// Navegación lateral visible en pantallas medianas y grandes.
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
     isActive ? "bg-blue-50 text-blue-800" : "text-gray-700 hover:bg-gray-100"

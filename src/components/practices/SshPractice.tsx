@@ -12,7 +12,7 @@ const THEME: TerminalTheme = {
   input: "text-slate-100",
 };
 
-/** Mac (cliente) → Proxmox VE → firewall UFW → MV Ubuntu Server */
+// Construye la topología SSH según el estado de instalación y firewall.
 function buildTopology(d: DeviceState, ipSeen: boolean) {
   const installed = d.sshInstalled === true;
   const allowed = d.ufwAllowed === true;
@@ -70,6 +70,7 @@ function buildTopology(d: DeviceState, ipSeen: boolean) {
   return { nodes, edges };
 }
 
+// Presenta la práctica SSH con el estado de la conexión simulada.
 export default function SshPractice({ practice }: { practice: Practice }) {
   const lab = usePracticeSession(practice.id);
   const { device, completed } = lab.session;

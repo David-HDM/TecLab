@@ -1,5 +1,6 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+// Gráfico porcentual del avance de temas o prácticas.
 interface ProgressPoint {
   titulo: string;
   progreso: number;

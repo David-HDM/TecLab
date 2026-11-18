@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { LineKind, TerminalLine } from "../../types/practice";
 
+// Consola interactiva con historial, navegación por flechas y salida desplazable.
 export interface TerminalTheme {
   /** Punto de la barra superior */
   dot: string;

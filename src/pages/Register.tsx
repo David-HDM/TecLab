@@ -47,6 +47,7 @@ const FIELD_ORDER: FieldName[] = [
   "confirmPassword",
 ];
 
+// Reglas de sanitización aplicadas mientras se captura cada campo.
 const sanitizers: Partial<Record<FieldName, (v: string) => string>> = {
   nombres: (v) => sanitizeName(v, 35),
   apellido_paterno: (v) => sanitizeName(v, 20),
@@ -77,6 +78,7 @@ function Field({ id, label, error, children }: { id: string; label: string; erro
   );
 }
 
+// Registro de cuenta con validación en cliente y confirmación por correo.
 export default function Register() {
   const [form, setForm] = useState<Form>(initialForm);
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});

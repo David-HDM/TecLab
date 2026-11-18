@@ -1,8 +1,11 @@
+-- Catálogo de laboratorios, temas, prácticas y preguntas.
 create table labs (
   id text primary key,                         -- 'dsl', 'ssh', 'proxmox-cisco'
   titulo text not null,
   descripcion_corta text not null,
   descripcion_larga text not null,
+  palabras_clave jsonb not null default '[]'::jsonb
+    check (jsonb_typeof(palabras_clave) = 'array'),
   img_oferta text,
   img_detalle text,
   estatus VARCHAR(20) NOT NULL DEFAULT 'SIN COMENZAR',
@@ -62,6 +65,7 @@ create table questions (
 
 create index questions_topic_id_idx on questions (practice_id, orden);
 
+-- Avance individual y resultados de evaluación por usuario.
 create table practice_progress (
   id bigint generated always as identity primary key,
   user_id uuid not null,
@@ -90,6 +94,7 @@ create table quiz_attempts (
 create index quiz_attempts_user_topic_idx on quiz_attempts (user_id, topic_id, creado_en desc);
 create index quiz_attempts_user_practice_idx on quiz_attempts (user_id, practice_id, creado_en);
 
+-- Mantiene la fecha de actualización de los registros de progreso.
 create or replace function set_actualizado_en()
 returns trigger
 language plpgsql
@@ -105,6 +110,7 @@ create trigger practice_progress_actualizado
   before update on practice_progress
   for each row execute function set_actualizado_en();
 
+-- Vista de avance por tema calculada a partir de prácticas y evaluaciones.
 drop view if exists topic_progress;
 
 create view topic_progress

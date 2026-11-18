@@ -1,147 +1,171 @@
 # TecLab
 
-Entorno virtual de enseñanza guiada para el aprendizaje de **Redes**, con prácticas interactivas y simuladas paso a paso, y evaluaciones de reforzamiento.
-
-Proyecto del Instituto Tecnológico Superior de San Luis Potosí, Capital · TecNM.
+TecLab es una plataforma web de laboratorios virtuales para el aprendizaje guiado de tecnología. El proyecto pertenece al Instituto Tecnológico Superior de San Luis Potosí, Capital (TecNM).
 
 ## Funcionalidades
 
-- **Autenticación**: inicio de sesión y registro de usuarios.
-- **Dashboard**: progreso general, progreso por tema e historial de puntajes.
-- **Temas**: contenido teórico de la categoría Redes.
-- **Prácticas** (interactivas, simuladas y guiadas paso a paso):
-  1. Direccionamiento IP y subredes.
-  2. Topología y enrutamiento.
-  3. Consultas DNS y geolocalización.
-- **Evaluación de reforzamiento**: cuestionarios por tema que indican los conceptos a repasar.
+- Registro con datos académicos, validación de campos y confirmación de correo.
+- Inicio de sesión con número de control y contraseña, cierre de sesión y recuperación/restablecimiento de contraseña.
+- Catálogo para explorar laboratorios y área personal para continuar los ya iniciados.
+- Laboratorios de Redes y Telecomunicaciones, Desarrollo de Software, Inteligencia Artificial y Microcontroladores y Electrónica.
+- Ficha de laboratorio con temas, descripción y resúmenes breves de artículos de Wikipedia buscados con las palabras clave del laboratorio.
+- Temas con prácticas disponibles y navegación de regreso entre laboratorio, tema y simulador.
+- Simuladores guiados para las prácticas `dsl`, `ssh` y `proxmox`:
+  - Consola interactiva con historial de comandos y retroalimentación.
+  - Objetivos de práctica y topología de red visual con estado de dispositivos y enlaces.
+  - Reinicio de práctica y modo de pantalla completa.
+- Evaluaciones por práctica con preguntas en orden aleatorio, puntaje, historial de intentos y conceptos por reforzar.
+- Dashboard con progreso por laboratorio, nivel, tema y práctica, además del historial de evaluaciones.
+- Avance de simuladores guardado localmente por usuario y sincronizado con el backend al iniciar sesión.
 
-## Stack
+## Tecnologías
 
-| Capa | Herramienta |
+| Área | Tecnología |
 | --- | --- |
-| Framework frontend | React + TypeScript |
-| Empaquetador | Vite |
-| Enrutamiento | React Router |
-| Estilos | Tailwind CSS |
-| Estado | Zustand |
-| Backend en la nube | Supabase (PostgreSQL + Auth) |
-| Despliegue | Vercel o Netlify |
-
-### APIs públicas
-
-- Cloudflare DNS over HTTPS: resolución de registros DNS.
-- RDAP: consulta de dominios e IPs.
-- ipapi.co / ip-api.com: geolocalización de IPs.
-- Wikipedia REST API: resúmenes de conceptos.
-
-### Visualización de datos
-
-- Recharts: gráficos del Dashboard.
-- React Flow: topologías de red interactivas.
-- Leaflet + react-leaflet: mapa interactivo.
-- TanStack Table (v8): tablas de resultados, rutas y registros DNS.
+| Interfaz | React 19, TypeScript y Vite |
+| Estilos | Tailwind CSS 4 |
+| Navegación | React Router |
+| Estado local | Zustand |
+| Autenticación | Supabase Auth |
+| API de la aplicación | Node.js, Express y PostgreSQL (`pg`) |
+| Gráficas | Recharts |
+| Topologías | React Flow |
+| Tablas | TanStack Table |
+| Artículos relacionados | API de búsqueda de Wikipedia en español |
 
 ## Requisitos
 
-- Node.js 20.19 o superior
+- Node.js 20.19+ o 22.12+
 - npm
-- Una cuenta gratuita en [Supabase](https://supabase.com)
+- Proyecto de Supabase para autenticación y perfiles
+- PostgreSQL accesible por el backend
 
-## Instalación
+## Instalación y ejecución local
+
+Instala las dependencias del frontend desde la raíz:
 
 ```bash
-git clone <url-del-repositorio>
-cd red-academy
 npm install
 ```
 
-> `@tanstack/react-table` debe estar en la versión 8 (`npm install @tanstack/react-table@8`). La v9 usa una API distinta.
+Configura las variables descritas en [Variables de entorno](#variables-de-entorno). Inicia el backend en una terminal:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+En otra terminal, inicia Vite desde la raíz del proyecto:
+
+```bash
+npm run dev
+```
+
+Vite sirve la interfaz y reenvía `/api` a `http://localhost:5000`. El backend también puede iniciarse en modo normal con `npm start` desde `backend/`.
 
 ## Variables de entorno
 
-Crea un archivo `.env` en la raíz (no se versiona):
+No subas archivos `.env` ni claves al repositorio.
+
+En el archivo `.env` de la raíz, configura las variables públicas que consume el cliente de Supabase:
 
 ```dotenv
-VITE_SUPABASE_URL=https://<tu-proyecto>.supabase.co
-VITE_SUPABASE_ANON_KEY=<tu-clave-anon>
+VITE_SUPABASE_URL=https://<proyecto>.supabase.co
+VITE_SUPABASE_ANON_KEY=<clave-publica-de-supabase>
 ```
 
-Puedes tomar `.env.example` como plantilla. Vite solo expone las variables que empiezan con `VITE_`.
+Crea `backend/.env` a partir de [`backend/.env.example`](./backend/.env.example) y configura:
 
-## Base de datos
+```dotenv
+DATABASE_URL=postgresql://<usuario>:<contraseña>@<host>:5432/<base>
+SUPABASE_URL=https://<proyecto>.supabase.co
+SUPABASE_ANON_KEY=<clave-publica-de-supabase>
+PORT=5000
+```
 
-En el editor SQL de Supabase, ejecuta en este orden los archivos de `supabase/`:
+`PORT` es opcional; el backend usa `5000` por defecto. El backend carga primero `backend/.env` y después el `.env` de la raíz. Para comprobar la conexión, el servidor expone `GET /api/health`.
 
-1. `schema.sql`: tablas.
-2. `policies.sql`: políticas RLS (cada usuario solo accede a su progreso e intentos).
-3. `seed.sql`: temas, prácticas y preguntas iniciales.
+## Base de datos y autenticación
 
-Tablas: `profiles`, `topics`, `practices`, `practice_progress`, `quizzes`, `questions`, `quiz_attempts`.
+La aplicación usa Supabase Auth para las cuentas y un backend Express que consulta PostgreSQL con `DATABASE_URL`.
+
+Para preparar la base de datos:
+
+1. En Supabase, configura Auth y aplica [`supabase/schema.sql`](./supabase/schema.sql) para crear `profiles`.
+2. Aplica [`supabase/policies.sql`](./supabase/policies.sql) para habilitar las políticas de acceso al perfil.
+3. En la base PostgreSQL conectada al backend, ejecuta [`scriptsql/script.sql`](./scriptsql/script.sql) una sola vez para crear laboratorios, temas, prácticas, preguntas, progreso, intentos de evaluación y sus índices.
+4. Si actualizas una base anterior que ya tenía el esquema de seguimiento, revisa [`scriptsql/migrate_user_progress.sql`](./scriptsql/migrate_user_progress.sql) antes de ejecutarlo. No es necesario para una base nueva.
+5. La columna `labs.palabras_clave` se crea como JSON con un arreglo de cadenas (por ejemplo, `["redes", "direccionamiento IP"]`) y se usa para consultar Wikipedia. En una base existente que todavía no la tenga, ejecuta:
+
+   ```sql
+   ALTER TABLE labs
+     ADD COLUMN IF NOT EXISTS palabras_clave jsonb NOT NULL DEFAULT '[]'::jsonb;
+   ```
+
+El endpoint de inicio de sesión por número de control está implementado como función de Supabase en `supabase/functions/login-numero-control`. La tabla `login_attempts` se define en `supabase/schema.sql`. Al desplegar la función (`supabase functions deploy login-numero-control`), configura `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` y `ALLOWED_ORIGINS` como secretos. Para el registro, configura en Supabase el mecanismo que crea el perfil con los metadatos de Auth; el login busca allí el número de control asociado a la cuenta.
+
+## Rutas de la aplicación
+
+| Ruta | Acceso | Contenido |
+| --- | --- | --- |
+| `/login` | Público | Inicio de sesión |
+| `/registro` | Público | Registro de usuario |
+| `/recuperar` | Público | Solicitud de recuperación |
+| `/restablecer-contrasena` | Público con sesión de recuperación | Cambio de contraseña |
+| `/dashboard` | Protegido | Progreso e historial |
+| `/mis-laboratorios` | Protegido | Laboratorios iniciados |
+| `/explorar` | Protegido | Laboratorios disponibles |
+| `/:labId` | Protegido | Detalle del laboratorio o sus temas |
+| `/:labId/:topicId` | Protegido | Detalle del tema y prácticas |
+| `/:labId/:topicId/:practiceId` | Protegido | Simulador de práctica |
+| `/evaluacion/:practiceId` | Protegido | Evaluación y reforzamiento |
 
 ## Scripts
 
+Desde la raíz:
+
 | Comando | Descripción |
 | --- | --- |
-| `npm run dev` | Servidor de desarrollo con recarga instantánea |
-| `npm run build` | Verifica tipos y genera la carpeta `dist/` |
-| `npm run preview` | Sirve localmente el resultado del build |
+| `npm run dev` | Inicia Vite en desarrollo |
+| `npm run build` | Verifica TypeScript y genera `dist/` |
+| `npm run preview` | Sirve localmente el build de producción |
+| `npm test` | Ejecuta las pruebas con Vitest |
 
-## Estructura del proyecto
+Desde `backend/`:
+
+| Comando | Descripción |
+| --- | --- |
+| `npm run dev` | Inicia Express con recarga al cambiar archivos |
+| `npm start` | Inicia Express |
+
+## Estructura
 
 ```text
 src/
-├── main.tsx              Punto de entrada (BrowserRouter)
-├── App.tsx               Layout: Navbar, Sidebar, contenido y Footer
-├── routes/               AppRouter y ProtectedRoute
-├── pages/                Una página por ruta
-├── components/
-│   ├── layout/           Navbar, Sidebar, Footer, PageContainer
-│   ├── ui/               Button, Card, ProgressBar, Modal
-│   ├── dashboard/        Gráficos y tabla de progreso
-│   ├── practices/        Componentes de cada práctica
-│   └── quiz/             Preguntas, resultado y reforzamiento
-├── services/             Supabase y APIs públicas
-├── store/                Estado global (Zustand)
-├── hooks/                Hooks personalizados
-├── utils/                Lógica de subredes, enrutamiento y puntaje
-├── data/                 Pasos de prácticas y datos semilla
-├── types/                Tipos de TypeScript
-└── config/               Constantes
-supabase/                 schema.sql, policies.sql, seed.sql
-public/                   Favicons y logos
+├── api/                 Cliente HTTP para el backend
+├── components/          Componentes de layout, interfaz, dashboard, simuladores y quiz
+├── config/              Enlaces y opciones compartidas
+├── hooks/               Acceso a autenticación y sesión de práctica
+├── pages/               Pantallas de la aplicación
+├── routes/              Rutas y protección de sesión
+├── services/            Supabase, autenticación y Wikipedia
+├── store/               Estado global y persistencia local
+├── types/               Modelos de datos de TypeScript
+└── utils/               Validaciones y motores de simulación
+backend/
+└── server.js            API Express y consultas PostgreSQL
+scriptsql/               Esquema de la aplicación y migración de progreso
+supabase/                Configuración, políticas y función de inicio de sesión
+public/                  Imágenes, iconos y recursos de marca
 ```
-
-## Rutas
-
-| Ruta | Acceso | Descripción |
-| --- | --- | --- |
-| `/login` | Público | Inicio de sesión |
-| `/registro` | Público | Registro |
-| `/dashboard` | Protegido | Progreso del usuario |
-| `/temas` | Protegido | Lista de temas |
-| `/temas/:topicId` | Protegido | Detalle de un tema |
-| `/practicas` | Protegido | Lista de prácticas |
-| `/practicas/:practiceId` | Protegido | Ejecución de una práctica |
-| `/evaluacion/:topicId` | Protegido | Evaluación de reforzamiento |
 
 ## Despliegue
 
-1. Sube el repositorio a GitHub.
-2. Importa el proyecto en Vercel o Netlify.
-3. Configura el comando de build `npm run build` y el directorio de salida `dist`.
-4. Agrega las variables `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en el panel del servicio.
-5. Si usas rutas del lado del cliente, configura la redirección de todas las rutas a `index.html`.
-
-## Estado del proyecto
-
-- [x] Estructura base, rutas y layouts
-- [x] Dashboard, Temas, Prácticas y Evaluación con datos temporales
-- [ ] Integración con Supabase (autenticación y persistencia)
-- [ ] Práctica 1: Direccionamiento IP y subredes
-- [ ] Práctica 2: Topología y enrutamiento
-- [ ] Práctica 3: DNS y geolocalización
-- [ ] Contenido de los Temas
+- **Frontend:** configura `npm run build` como comando de compilación y `dist` como directorio de salida. Define `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en el proveedor y configura el fallback de rutas del cliente a `index.html`.
+- **Backend:** despliega `backend/` en un servicio Node.js, instala sus dependencias y configura `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `PORT`. El frontend y el backend deben compartir origen o el proveedor debe reenviar `/api` al backend; el proxy de Vite solo se aplica en desarrollo.
+- **Supabase:** configura Auth, las políticas y los secretos requeridos por la función `login-numero-control`. Restringe `ALLOWED_ORIGINS` a los orígenes reales del frontend.
 
 ## Licencia
 
-Por definir.
+Consulta al equipo del proyecto para conocer las condiciones de uso y distribución.

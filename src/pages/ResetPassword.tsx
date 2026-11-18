@@ -12,6 +12,7 @@ import {
   validatePasswordConfirm,
 } from "../utils/validators";
 
+// Actualiza la contraseña desde un enlace de recuperación válido.
 export default function ResetPassword() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();

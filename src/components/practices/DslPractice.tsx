@@ -12,7 +12,7 @@ const THEME: TerminalTheme = {
   input: "text-emerald-300",
 };
 
-/** Router CPE → módem DSL → DSLAM (nube del ISP) → servidor DNS */
+// Construye la topología DSL con base en el estado simulado del router.
 function buildTopology(d: DeviceState) {
   const up = d.up === true;
   const ip = String(d.ip);
@@ -65,6 +65,7 @@ function buildTopology(d: DeviceState) {
   return { nodes, edges };
 }
 
+// Presenta la práctica DSL, su consola y el estado de conectividad.
 export default function DslPractice({ practice }: { practice: Practice }) {
   const lab = usePracticeSession(practice.id);
   const device = lab.session.device;

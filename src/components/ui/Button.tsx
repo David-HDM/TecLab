@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 type Variant = "primary" | "outline" | "ghost";
 
+// Botón reutilizable con variantes visuales y opción de ancho completo.
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   fullWidth?: boolean;

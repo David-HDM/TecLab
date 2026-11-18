@@ -1,5 +1,6 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+// Historial de puntajes de evaluación por número de intento.
 interface Point {
   intento: number;
   fecha: string;

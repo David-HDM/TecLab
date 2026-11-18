@@ -12,7 +12,7 @@ const THEME: TerminalTheme = {
   input: "text-emerald-300",
 };
 
-/** MVs → puente vmbr0 de Proxmox → Router 2911 → Internet (el sentido del tráfico de salida) */
+// Construye la topología de salida a Internet para las máquinas virtuales.
 function buildTopology(d: DeviceState) {
   const wan = d.wanIp === true && d.wanNat === true;
   const lan = d.lanIp === true && d.lanNat === true;
@@ -67,6 +67,7 @@ function buildTopology(d: DeviceState) {
   return { nodes, edges };
 }
 
+// Presenta el simulador de configuración Proxmox y router Cisco.
 export default function ProxmoxPractice({ practice }: { practice: Practice }) {
   const lab = usePracticeSession(practice.id);
   const device = lab.session.device;

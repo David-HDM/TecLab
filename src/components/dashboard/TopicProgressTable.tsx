@@ -7,10 +7,10 @@ import {
 } from "@tanstack/react-table";
 import type { PracticeProgress } from "../../types/topic";
 
+// Tabla de avance y estado de las prácticas del tema seleccionado.
 const helper = createColumnHelper<PracticeProgress>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const columns: ColumnDef<PracticeProgress, any>[] = [
+const columns: ColumnDef<PracticeProgress>[] = [
   helper.accessor("titulo", { header: "Práctica" }),
   helper.accessor("progreso", {
     header: "Avance",

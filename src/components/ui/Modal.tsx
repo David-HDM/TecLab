@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 
+// Diálogo modal que cierra al pulsar fuera o presionar Escape.
 interface ModalProps {
   open: boolean;
   onClose: () => void;

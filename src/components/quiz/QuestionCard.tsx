@@ -2,6 +2,7 @@ import Card from "../ui/Card";
 import InlineText from "../ui/InlineText";
 import type { Question } from "../../types/quiz";
 
+// Enunciado y opciones para una pregunta del cuestionario.
 interface QuestionCardProps {
   question: Question;
   index: number;

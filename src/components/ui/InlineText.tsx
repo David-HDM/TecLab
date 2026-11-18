@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 
+// Renderiza marcas sencillas de código, cursiva y negrita.
 interface InlineTextProps {
   text: string;
   /** Clases del <code>. Por defecto, el estilo para fondos claros */

@@ -4,6 +4,7 @@ import Footer from "./components/layout/Footer";
 import AppRouter from "./routes/AppRouter";
 import { useAuth } from "./hooks/useAuth";
 
+// Ensambla la navegación global y muestra el menú lateral al iniciar sesión.
 export default function App() {
   const { user } = useAuth();
 

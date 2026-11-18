@@ -1,3 +1,4 @@
+// Barra de progreso accesible con valor acotado entre 0 y 100.
 interface ProgressBarProps {
   value: number; // 0-100
   label?: string;

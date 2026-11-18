@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { useAuth } from "../../hooks/useAuth";
 import { NAV_LINKS } from "../../config/constants";
 
+// Barra superior con navegación autenticada y acciones de sesión.
 const mobileLinkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
     isActive ? "bg-blue-50 text-blue-800" : "text-gray-700 hover:bg-gray-100"

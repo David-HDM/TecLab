@@ -16,10 +16,12 @@ import type { QuizAttempt } from "../types/quiz";
 
 const LEVELS = ["PRINCIPIANTE", "INTERMEDIO", "AVANZADO"] as const;
 
+// Normaliza errores de API para mostrarlos como mensajes legibles.
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
 }
 
+// Panel de avance con filtros por laboratorio, nivel, tema y práctica.
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -38,6 +40,7 @@ export default function Dashboard() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Carga laboratorios disponibles al montar el panel.
   useEffect(() => {
     let active = true;
     api.getLabs()
@@ -57,6 +60,7 @@ export default function Dashboard() {
     };
   }, []);
 
+  // Actualiza el progreso de temas cuando cambia el laboratorio.
   useEffect(() => {
     if (!labId) {
       setTopics([]);
@@ -85,6 +89,7 @@ export default function Dashboard() {
     };
   }, [labId]);
 
+  // Actualiza las prácticas cuando cambia el tema seleccionado.
   useEffect(() => {
     if (!topicId) {
       setPractices([]);
@@ -113,6 +118,7 @@ export default function Dashboard() {
     };
   }, [topicId]);
 
+  // Recupera el historial de evaluaciones de la práctica seleccionada.
   useEffect(() => {
     if (!practiceId) {
       setQuizHistory([]);
@@ -141,6 +147,7 @@ export default function Dashboard() {
     };
   }, [practiceId]);
 
+  // Deriva opciones y porcentajes para los gráficos a partir de los datos cargados.
   const startedLabs = labs.filter((lab) => lab.estatus === "COMENZADO");
   const levels = useMemo(
     () => LEVELS.filter((topicLevel) => topics.some((topic) => topic.nivel === topicLevel)),
@@ -155,6 +162,7 @@ export default function Dashboard() {
     : 0;
   const selectedPractice = practices.find((practice) => practice.practice_id === practiceId);
 
+  // Cada cambio de filtro reinicia las selecciones dependientes.
   const handleLabChange = (nextLabId: string) => {
     setLabId(nextLabId);
     setLevel("");

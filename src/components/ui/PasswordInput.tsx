@@ -1,5 +1,6 @@
 import { useState, type InputHTMLAttributes } from "react";
 
+// Campo de contraseña con control para alternar su visibilidad.
 export default function PasswordInput(props: Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "className">) {
   const [visible, setVisible] = useState(false);
 
