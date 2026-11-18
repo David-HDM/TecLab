@@ -19,6 +19,12 @@ interface PracticeShellProps {
 }
 
 const CARD = "rounded-xl border border-slate-800 bg-slate-900";
+const ADDITIONAL_OBJECTIVE_COMMANDS: Record<string, Record<number, string>> = {
+  proxmox: {
+    3: "ip nat outside",
+    5: "ip nat inside",
+  },
+};
 
 export default function PracticeShell({ practice, lab, theme, topology, badge }: PracticeShellProps) {
   const [confirmReset, setConfirmReset] = useState(false);
@@ -43,7 +49,7 @@ export default function PracticeShell({ practice, lab, theme, topology, badge }:
                 Reiniciar
               </button>
             </div>
-            <h2 className="mt-1 text-sm font-bold text-white">{practice.tituloGuiado}</h2>
+            <h2 className="mt-1 text-sm font-bold text-white">{practice.titulo_guiado}</h2>
             <p className="mt-1 leading-relaxed text-slate-400">{practice.introduccion}</p>
           </div>
 
@@ -81,9 +87,15 @@ export default function PracticeShell({ practice, lab, theme, topology, badge }:
                 {session.completed.length}/{practice.objetivos.length}
               </span>
             </div>
+            {lab.persistenceError && (
+              <p role="alert" className="text-xs text-red-300">
+                {lab.persistenceError}
+              </p>
+            )}
 
             {practice.objetivos.map((o) => {
               const done = session.completed.includes(o.id);
+              const additionalCommand = ADDITIONAL_OBJECTIVE_COMMANDS[practice.id]?.[o.id];
               return (
                 <div
                   key={o.id}
@@ -94,19 +106,22 @@ export default function PracticeShell({ practice, lab, theme, topology, badge }:
                   }
                 >
                   {o.id}. {o.texto} <code className={accent.code}>{o.comando}</code>
+                  {additionalCommand && (
+                    <> y <code className={accent.code}>{additionalCommand}</code></>
+                  )}
                 </div>
               );
             })}
 
             <div className={`mt-4 rounded-lg border p-3 ${accent.note}`}>
-              <p className={`mb-1 font-semibold ${accent.noteTitle}`}>{practice.tituloNota}</p>
+              <p className={`mb-1 font-semibold ${accent.noteTitle}`}>{practice.titulo_nota}</p>
               <p>
                 <InlineText text={feedback} codeClass="text-amber-300" />
               </p>
             </div>
 
             <Link
-              to={`/evaluacion/${practice.topicId}`}
+              to={`/evaluacion/${practice.id}`}
               className={`block w-full rounded-lg py-2 text-center font-bold text-white transition-colors ${accent.button}`}
             >
               Ir a la evaluación de reforzamiento →

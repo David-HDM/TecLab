@@ -6,21 +6,30 @@ export interface PracticeObjective {
   comando: string;
 }
 
+export interface PracticeProgressRecord {
+  practice_id: string;
+  objetivos_completados: number[];
+  completada: boolean;
+  completada_en: string | null;
+  actualizado_en: string;
+}
+
 export interface Practice {
   id: string;
-  topicId: string;
+  topic_id: string;
   titulo: string;
   descripcion: string;
   sigla: string;
   color: AccentColor;
   modulo: string;
   categoria: string;
-  tituloGuiado: string;
+  titulo_guiado: string;
   introduccion: string;
-  tituloNota: string;
-  informacion?: { titulo: string; lineas: string[] };
+  titulo_nota: string;
+  informacion: { titulo: string; lineas: string[] } | null;
   consola: { titulo: string; detalle: string };
   objetivos: PracticeObjective[];
+  orden: number;
 }
 
 /* ------------------------------------------------------------------ */

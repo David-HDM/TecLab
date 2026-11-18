@@ -1,9 +1,15 @@
 import { Link } from "react-router";
 import PageContainer from "../components/layout/PageContainer";
 import Card from "../components/ui/Card";
-import { labs } from "../data/catalog";
+import { useEffect, useState } from "react";
+import { Lab } from "../types/lab";
+import { api } from "../api/catalog";
 
 export default function Explorer() {
+
+  const [labs, setLabs] = useState<Lab[]>([]);
+  useEffect(() => { api.getLabs().then(setLabs); }, []);
+
   return (
     <PageContainer>
       <h1 className="text-2xl font-bold text-blue-900">Mis Laboratorios</h1>
@@ -13,7 +19,7 @@ export default function Explorer() {
             l.estatus == "COMENZADO" ? (
                 <Link key={l.id} to={`/${l.id}`} className="block transition-shadow hover:shadow-md">
                     <Card title={l.titulo} className="h-full">
-                    <img src={l.imgOferta} className="mb-4"/>
+                    {l.img_oferta && <img src={l.img_oferta} className="mb-4" />}
                     <p className="text-gray-600">{l.descripcion_corta}</p>
                     </Card>
                 </Link>

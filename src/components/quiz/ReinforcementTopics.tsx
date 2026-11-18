@@ -5,11 +5,11 @@ import type { Question } from "../../types/quiz";
 
 interface ReinforcementTopicsProps {
   failed: Question[];
-  topicId: string;
+  practicePath: string;
   topicTitle: string;
 }
 
-export default function ReinforcementTopics({ failed, topicId, topicTitle }: ReinforcementTopicsProps) {
+export default function ReinforcementTopics({ failed, practicePath, topicTitle }: ReinforcementTopicsProps) {
   if (failed.length === 0) {
     return (
       <Card title="Reforzamiento">
@@ -30,12 +30,16 @@ export default function ReinforcementTopics({ failed, topicId, topicTitle }: Rei
           </li>
         ))}
       </ul>
-      <Link
-        to={`/temas/${topicId}`}
-        className="mt-5 inline-block font-semibold text-blue-700 hover:underline"
-      >
-        Repasar el tema: {topicTitle}
-      </Link>
+      {practicePath ? (
+        <Link
+          to={practicePath}
+          className="mt-5 inline-block font-semibold text-blue-700 hover:underline"
+        >
+          Repasar el tema: {topicTitle}
+        </Link>
+      ) : (
+        <p className="mt-5 text-sm text-gray-600">No se pudo cargar la ruta de la práctica para repasar.</p>
+      )}
     </Card>
   );
 }

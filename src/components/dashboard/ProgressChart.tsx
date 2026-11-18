@@ -1,7 +1,11 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import type { TopicProgress } from "../../types/topic";
 
-export default function ProgressChart({ data }: { data: TopicProgress[] }) {
+interface ProgressPoint {
+  titulo: string;
+  progreso: number;
+}
+
+export default function ProgressChart({ data }: { data: ProgressPoint[] }) {
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">

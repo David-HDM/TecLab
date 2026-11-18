@@ -6,9 +6,9 @@ const TOTAL = 8;
 const HINTS: Record<number, string> = {
   1: "Inicia asignando el nombre del router con `hostname Router2911`.",
   2: "Entra a la interfaz GigabitEthernet0/0 para asignar la IP WAN pública del nodo ITSSLP: `interface gigabitEthernet 0/0`.",
-  3: "Asigna la IP WAN: `ip address 172.168.173.81 255.255.255.0` y activa `ip nat outside`.",
+  3: "En G0/0, asigna la IP WAN con `ip address 172.168.173.81 255.255.255.0` y después ejecuta `ip nat outside`.",
   4: "Entra a la interfaz LAN conectada al puente `vmbr0` de Proxmox: `interface gigabitEthernet 0/1`.",
-  5: "Asigna la IP LAN del Gateway: `ip address 192.168.100.1 255.255.255.0` y activa `ip nat inside`.",
+  5: "En G0/1, asigna la IP LAN con `ip address 192.168.100.1 255.255.255.0` y después ejecuta `ip nat inside`.",
   6: "Escribe `exit` y configura la ruta por defecto: `ip route 0.0.0.0 0.0.0.0 172.168.173.1`.",
   7: "¡Excelente! Ahora crea la Access List para la red Proxmox: `access-list 1 permit 192.168.100.0 0.0.0.255`.",
   8: "Lista de acceso creada. Ahora activa el NAT Overload: `ip nat inside source list 1 interface GigabitEthernet0/0 overload`.",

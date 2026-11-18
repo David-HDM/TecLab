@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./useAuth";
 import { createSession, sessionKey, usePracticeStore } from "../store/practiceStore";
 import { engines } from "../utils/practiceEngines";
+import { api } from "../api/catalog";
 
 /** Sesión de práctica del usuario actual: estado persistente + acciones */
 export function usePracticeSession(practiceId: string) {
   const { user } = useAuth();
+  const [persistenceError, setPersistenceError] = useState("");
+  const progressSaveQueue = useRef<Promise<void>>(Promise.resolve());
   const userId = user?.id ?? "anon";
   const engine = engines[practiceId];
   const key = sessionKey(userId, practiceId);
@@ -38,8 +41,51 @@ export function usePracticeSession(practiceId: string) {
   const progress = Math.round((session.completed.length / engine.totalObjectives) * 100);
   const complete = engine.isComplete(session.completed, session.device);
   const feedback = engine.feedback(session.completed, session.device);
+  const progressSignature = JSON.stringify({
+    startedAt: session.startedAt,
+    completed: session.completed,
+    complete,
+  });
 
-  return { session, engine, run, reset, progress, complete, feedback, prompt: engine.prompt(session.device) };
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+
+    const saveRequest = progressSaveQueue.current
+      .catch(() => undefined)
+      .then(async () => {
+        await api.savePracticeProgress(practiceId, {
+          objetivos_completados: session.completed,
+          completada: complete,
+        });
+      });
+    progressSaveQueue.current = saveRequest;
+
+    saveRequest
+      .then(() => {
+        if (active) setPersistenceError("");
+      })
+      .catch((error: unknown) => {
+        console.error("No se pudo guardar el avance de la práctica:", error);
+        if (active) setPersistenceError("No se pudo guardar tu avance. Revisa tu conexión e inténtalo de nuevo.");
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [user, practiceId, progressSignature]);
+
+  return {
+    session,
+    engine,
+    run,
+    reset,
+    progress,
+    complete,
+    feedback,
+    persistenceError,
+    prompt: engine.prompt(session.device),
+  };
 }
 
 export type PracticeLab = ReturnType<typeof usePracticeSession>;

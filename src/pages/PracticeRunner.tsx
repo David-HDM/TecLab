@@ -1,8 +1,8 @@
 import { Link, useParams } from "react-router";
 import { useEffect, useRef, useState, ComponentType } from "react";
 import PageContainer from "../components/layout/PageContainer";
-import { practices } from "../data/catalog";
 import { Practice } from "../types/practice";
+import { api } from "../api/catalog"; // 👈 Importamos tu API
 import DslPractice from "../components/practices/DslPractice";
 import SshPractice from "../components/practices/SshPractice";
 import ProxmoxPractice from "../components/practices/ProxmoxPractice";
@@ -15,11 +15,29 @@ const views: Record<string, ComponentType<{ practice: Practice }>> = {
 
 export default function PracticeRunner() {
   const { labId, topicId, practiceId } = useParams();
-  const practice = practices.find((p) => p.id === practiceId);
-  const View = practice ? views[practice.id] : undefined;
+  
+  // 👇 Estados para guardar la práctica y saber si está cargando
+  const [practice, setPractice] = useState<Practice | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // 👇 useEffect para pedir la práctica a PostgreSQL cuando cambie el ID
+  useEffect(() => {
+    if (!practiceId) return;
+    
+    setLoading(true);
+    api.getPractice(practiceId)
+      .then((data) => {
+        setPractice(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, [practiceId]);
 
   useEffect(() => {
     const onChange = () =>
@@ -41,6 +59,18 @@ export default function PracticeRunner() {
     }
   };
 
+  // 👇 Mientras carga, mostramos un mensaje
+  if (loading) {
+    return (
+      <PageContainer>
+        <p className="text-gray-600">Cargando práctica...</p>
+      </PageContainer>
+    );
+  }
+
+  // 👇 Si terminó de cargar pero no hay práctica o no hay vista, mostramos el error
+  const View = practice ? views[practice.id] : undefined;
+  
   if (!practice || !View) {
     return (
       <PageContainer>

@@ -1,26 +1,107 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import PageContainer from "../components/layout/PageContainer";
 import Button from "../components/ui/Button";
 import QuestionCard from "../components/quiz/QuestionCard";
 import QuizResult from "../components/quiz/QuizResult";
 import ReinforcementTopics from "../components/quiz/ReinforcementTopics";
-import { questions as allQuestions, topics } from "../data/catalog";
+import { api } from "../api/catalog";
+import type { QuizAttempt, Question } from "../types/quiz";
 
 export default function Quiz() {
-  const { topicId } = useParams();
-  const topic = topics.find((t) => t.id === topicId);
-  const questions = useMemo(() => allQuestions.filter((q) => q.topicId === topicId), [topicId]);
+  const { practiceId } = useParams();
+  const id = practiceId;
+  const navigate = useNavigate();
+
+  const [parentTitle, setParentTitle] = useState("");
+  const [practicePath, setPracticePath] = useState("");
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [finished, setFinished] = useState(false);
+  const [savingAttempt, setSavingAttempt] = useState(false);
+  const [attemptError, setAttemptError] = useState("");
+  const [savedAttempt, setSavedAttempt] = useState<QuizAttempt | null>(null);
 
-  if (!topic || questions.length === 0) {
+  // 👇 Petición a la base de datos
+  useEffect(() => {
+    let active = true;
+    if (!id) {
+      setLoading(false);
+      setLoadError("No se indicó la práctica que se va a evaluar.");
+      return;
+    }
+
+    setLoading(true);
+    setLoadError("");
+    setPracticePath("");
+    setQuestions([]);
+    setCurrent(0);
+    setAnswers([]);
+    setFinished(false);
+    setSavedAttempt(null);
+    setAttemptError("");
+
+    api.getQuestionsForPractice(id)
+      .then((questionsData) => {
+        if (active) setQuestions(questionsData);
+      })
+      .catch((error: unknown) => {
+        console.error("Error al cargar las preguntas del quiz:", error);
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : "Error desconocido al cargar las preguntas.");
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    api.getPractice(id)
+      .then(async (practice) => {
+        if (!active || !practice) return;
+        setParentTitle(practice.titulo || "Evaluación");
+
+        try {
+          const topic = await api.getTopic(practice.topic_id);
+          if (active && topic) {
+            setPracticePath(`/${topic.lab_id}/${practice.topic_id}/${practice.id}`);
+          }
+        } catch (error) {
+          console.error("No se pudo determinar la ruta de regreso al simulador:", error);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("No se pudieron cargar los datos de la práctica del quiz:", error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (loading) {
     return (
       <PageContainer>
-        <p className="text-gray-600">Evaluación no disponible.</p>
-        <Link to="/temas" className="font-semibold text-blue-700 hover:underline">Volver a Temas</Link>
+        <p className="text-gray-600">Cargando evaluación...</p>
+      </PageContainer>
+    );
+  }
+
+  if (!questions || questions.length === 0) {
+    return (
+      <PageContainer>
+        <p className="text-gray-600">
+          {loadError || "Evaluación no disponible (no hay preguntas para esta práctica)."}
+        </p>
+        <button
+          onClick={() => (practicePath ? navigate(practicePath) : navigate(-1))}
+          className="mt-4 font-semibold text-blue-700 hover:underline"
+        >
+          Volver atrás
+        </button>
       </PageContainer>
     );
   }
@@ -34,12 +115,44 @@ export default function Quiz() {
     setAnswers(next);
   };
 
-  const handleNext = () => (isLast ? setFinished(true) : setCurrent(current + 1));
+  const handleNext = async () => {
+    if (!isLast) {
+      setCurrent(current + 1);
+      return;
+    }
+
+    const respuestas = questions.flatMap((question, index) => {
+      const elegida = answers[index];
+      return elegida === null || elegida === undefined
+        ? []
+        : [{ pregunta: question.id, elegida }];
+    });
+
+    if (!id || respuestas.length !== questions.length) {
+      setAttemptError("No se pudieron validar las respuestas del quiz.");
+      return;
+    }
+
+    setSavingAttempt(true);
+    setAttemptError("");
+    try {
+      const attempt = await api.submitQuizAttempt(id, respuestas);
+      setSavedAttempt(attempt);
+      setFinished(true);
+    } catch (error) {
+      console.error("No se pudo guardar el intento del quiz:", error);
+      setAttemptError(error instanceof Error ? error.message : "Error desconocido.");
+    } finally {
+      setSavingAttempt(false);
+    }
+  };
 
   const handleRetry = () => {
     setCurrent(0);
     setAnswers([]);
     setFinished(false);
+    setAttemptError("");
+    setSavedAttempt(null);
   };
 
   const failed = questions.filter((q, i) => answers[i] !== q.correcta);
@@ -47,16 +160,24 @@ export default function Quiz() {
 
   return (
     <PageContainer>
-      <Link to={`/temas/${topic.id}`} className="text-sm font-semibold text-blue-700 hover:underline">
-        ← {topic.titulo}
-      </Link>
+      <button
+        onClick={() => (practicePath ? navigate(practicePath) : navigate(-1))}
+        className="text-sm font-semibold text-blue-700 hover:underline cursor-pointer"
+      >
+        ← Volver a {parentTitle}
+      </button>
+
       <h1 className="mt-2 text-2xl font-bold text-blue-900">Evaluación de reforzamiento</h1>
 
       <div className="mx-auto mt-6 max-w-2xl space-y-6">
         {finished ? (
           <>
-            <QuizResult correct={correct} total={questions.length} onRetry={handleRetry} />
-            <ReinforcementTopics failed={failed} topicId={topic.id} topicTitle={topic.titulo} />
+            <QuizResult
+              correct={savedAttempt?.correctas ?? correct}
+              total={savedAttempt?.total ?? questions.length}
+              onRetry={handleRetry}
+            />
+            <ReinforcementTopics failed={failed} practicePath={practicePath} topicTitle={parentTitle} />
           </>
         ) : (
           <>
@@ -68,10 +189,15 @@ export default function Quiz() {
               onSelect={handleSelect}
             />
             <div className="flex justify-end">
-              <Button onClick={handleNext} disabled={selected === null}>
-                {isLast ? "Finalizar" : "Siguiente"}
+              <Button onClick={handleNext} disabled={selected === null || savingAttempt}>
+                {savingAttempt ? "Guardando..." : isLast ? "Finalizar" : "Siguiente"}
               </Button>
             </div>
+            {attemptError && (
+              <p role="alert" className="text-right text-sm text-red-600">
+                No se pudo guardar el resultado: {attemptError}
+              </p>
+            )}
           </>
         )}
       </div>

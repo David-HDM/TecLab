@@ -1,10 +1,20 @@
 import { Link, useParams } from "react-router";
 import PageContainer from "../components/layout/PageContainer";
-import { practices, topics } from "../data/catalog";
+import { useEffect, useState } from "react";
+import { Practice } from "../types/practice";
+import { Topic } from "../types/topic";
+import { api } from "../api/catalog";
 
 export default function TopicDetail() {
-  const { labId, topicId } = useParams();
-  const topic = topics.find((t) => t.id === topicId);
+  const { labId, topicId } = useParams<{ labId: string; topicId: string }>();
+  const [topic, setTopic] = useState<Topic | null>(null);
+  const [practices, setPractices] = useState<Practice[]>([]);
+
+  useEffect(() => {
+    if (!topicId) return;
+    api.getTopic(topicId).then(setTopic);
+    api.getPracticesByTopic(topicId).then(setPractices);
+  }, [topicId]);
 
   if (!topic) {
     return (
@@ -15,11 +25,11 @@ export default function TopicDetail() {
     );
   }
 
-  const related = practices.filter((p) => p.topicId === topic.id);
+  const related = practices.filter((p) => p.topic_id === topic.id);
 
   return (
     <PageContainer>
-      <Link to={`/${labId}`} className="text-sm font-semibold text-blue-700 hover:underline">← Temas</Link>
+      <Link to={`/${topic.lab_id}`} className="text-sm font-semibold text-blue-700 hover:underline">← Temas</Link>
       <h1 className="mt-2 text-2xl font-bold text-blue-900">{topic.titulo}</h1>
       <p className="mt-2 text-gray-600">{topic.descripcion}</p>
 
@@ -29,7 +39,7 @@ export default function TopicDetail() {
         {related.map((p) => (
           <Link
             key={p.id}
-            to={`/${labId}/${topicId}/${p.id}`}
+            to={`/${topic.lab_id}/${topic.id}/${p.id}`}
             className="rounded-md bg-blue-700 px-4 py-2 font-semibold text-white transition-colors hover:bg-blue-800"
           >
             {p.titulo}

@@ -5,20 +5,24 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import type { TopicProgress } from "../../types/topic";
+import type { PracticeProgress } from "../../types/topic";
 
-const helper = createColumnHelper<TopicProgress>();
+const helper = createColumnHelper<PracticeProgress>();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const columns: ColumnDef<TopicProgress, any>[] = [
+const columns: ColumnDef<PracticeProgress, any>[] = [
   helper.accessor("titulo", { header: "Práctica" }),
-  helper.accessor("mejorPuntaje", {
-    header: "Mejor puntaje en Quiz",
-    cell: (i) => (i.getValue() === null ? "—" : `${i.getValue()}%`),
+  helper.accessor("progreso", {
+    header: "Avance",
+    cell: (i) => `${i.getValue()}%`,
+  }),
+  helper.accessor("completada", {
+    header: "Estado",
+    cell: (i) => (i.getValue() ? "Completada" : "En progreso"),
   }),
 ];
 
-export default function TopicProgressTable({ data }: { data: TopicProgress[] }) {
+export default function TopicProgressTable({ data }: { data: PracticeProgress[] }) {
   const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
 
   return (
