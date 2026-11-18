@@ -3,9 +3,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Dashboard from "../pages/Dashboard";
-import Topics from "../pages/Topics";
 import TopicDetail from "../pages/TopicDetail";
-import Practices from "../pages/Practices";
 import PracticeRunner from "../pages/PracticeRunner";
 import Quiz from "../pages/Quiz";
 import ForgotPassword from "../pages/ForgotPassword";
@@ -43,7 +41,8 @@ export default function AppRouter() {
         {/* Para navegar a una Practica */}
         <Route path="/:labId/:topicId/:practiceId" element={<PracticeRunner />} />
 
-        <Route path="/evaluacion/:topicId" element={<Quiz />} />
+        {/* Para navegar al Quiz */}
+        <Route path="/evaluacion/:practiceId" element={<Quiz />} />
 
       </Route>
 
