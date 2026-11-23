@@ -8,9 +8,15 @@ create table labs (
     check (jsonb_typeof(palabras_clave) = 'array'),
   img_oferta text,
   img_detalle text,
-  estatus VARCHAR(20) NOT NULL DEFAULT 'SIN COMENZAR',
-    CONSTRAINT estatus_valid_values CHECK (estatus IN ('COMENZADO', 'SIN COMENZAR')),
   creado_en timestamptz not null default now()
+);
+
+-- El estado iniciado pertenece a cada usuario, no al catálogo compartido.
+create table user_labs (
+  user_id uuid not null,
+  lab_id text not null references labs (id) on delete cascade,
+  iniciado_en timestamptz not null default now(),
+  primary key (user_id, lab_id)
 );
 
 create table topics (

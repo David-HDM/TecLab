@@ -17,6 +17,16 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 app.use(express.json({ limit: '64kb' }));
 
+const labFields = `
+  l.id,
+  l.titulo,
+  l.descripcion_corta,
+  l.descripcion_larga,
+  l.palabras_clave,
+  l.img_oferta,
+  l.img_detalle,
+  l.creado_en`;
+
 // Valida tokens de Supabase y expone el ID autenticado a rutas protegidas.
 async function requireUser(req, res, next) {
   const token = req.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
@@ -58,21 +68,41 @@ app.get('/api/health', async (_req, res) => {
 });
 
 // Catálogo educativo: laboratorios, temas, prácticas y preguntas.
-app.get('/api/labs', async (_req, res) => {
-  res.json((await pool.query('SELECT * FROM labs ORDER BY id')).rows);
+app.get('/api/labs', requireUser, async (req, res) => {
+  const result = await pool.query(
+    `SELECT ${labFields},
+            CASE WHEN ul.lab_id IS NULL THEN 'SIN COMENZAR' ELSE 'COMENZADO' END AS estatus
+     FROM labs l
+     LEFT JOIN user_labs ul ON ul.lab_id = l.id AND ul.user_id = $1
+     ORDER BY l.id`,
+    [req.userId]
+  );
+  res.json(result.rows);
 });
 
-app.get('/api/labs/:id', async (req, res) => {
-  res.json((await pool.query('SELECT * FROM labs WHERE id=$1', [req.params.id])).rows[0] ?? null);
+app.get('/api/labs/:id', requireUser, async (req, res) => {
+  const result = await pool.query(
+    `SELECT ${labFields},
+            CASE WHEN ul.lab_id IS NULL THEN 'SIN COMENZAR' ELSE 'COMENZADO' END AS estatus
+     FROM labs l
+     LEFT JOIN user_labs ul ON ul.lab_id = l.id AND ul.user_id = $1
+     WHERE l.id = $2`,
+    [req.userId, req.params.id]
+  );
+  res.json(result.rows[0] ?? null);
 });
 
 app.post('/api/labs/:id/start', requireUser, async (req, res) => {
   const result = await pool.query(
-    `UPDATE labs
-     SET estatus = 'COMENZADO'
-     WHERE id = $1
-     RETURNING *`,
-    [req.params.id]
+    `WITH started AS (
+       INSERT INTO user_labs (user_id, lab_id)
+       SELECT $1, l.id FROM labs l WHERE l.id = $2
+       ON CONFLICT (user_id, lab_id) DO NOTHING
+     )
+     SELECT ${labFields}, 'COMENZADO'::varchar(20) AS estatus
+     FROM labs l
+     WHERE l.id = $2`,
+    [req.userId, req.params.id]
   );
   if (!result.rows[0]) return res.status(404).json({ error: 'Laboratorio no encontrado.' });
   res.json(result.rows[0]);

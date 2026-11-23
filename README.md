@@ -96,7 +96,8 @@ Para preparar la base de datos:
 2. Aplica [`supabase/policies.sql`](./supabase/policies.sql) para habilitar las políticas de acceso al perfil.
 3. En la base PostgreSQL conectada al backend, ejecuta [`scriptsql/script.sql`](./scriptsql/script.sql) una sola vez para crear laboratorios, temas, prácticas, preguntas, progreso, intentos de evaluación y sus índices.
 4. Si actualizas una base anterior que ya tenía el esquema de seguimiento, revisa [`scriptsql/migrate_user_progress.sql`](./scriptsql/migrate_user_progress.sql) antes de ejecutarlo. No es necesario para una base nueva.
-5. La columna `labs.palabras_clave` se crea como JSON con un arreglo de cadenas (por ejemplo, `["redes", "direccionamiento IP"]`) y se usa para consultar Wikipedia. En una base existente que todavía no la tenga, ejecuta:
+5. En una base existente, ejecuta [`scriptsql/migrate_user_labs.sql`](./scriptsql/migrate_user_labs.sql) para guardar por usuario los laboratorios iniciados. Los estados globales antiguos de `labs.estatus` no se pueden atribuir a un usuario, por lo que se ignoran.
+6. La columna `labs.palabras_clave` se crea como JSON con un arreglo de cadenas (por ejemplo, `["redes", "direccionamiento IP"]`) y se usa para consultar Wikipedia. En una base existente que todavía no la tenga, ejecuta:
 
    ```sql
    ALTER TABLE labs
