@@ -14,7 +14,11 @@ import type { Lab } from "../types/lab";
 import type { PracticeProgress, TopicProgress } from "../types/topic";
 import type { QuizAttempt } from "../types/quiz";
 
-const LEVELS = ["PRINCIPIANTE", "INTERMEDIO", "AVANZADO"] as const;
+const LEVELS = [
+  { value: "PRINCIPIANTE", label: "Principiante" },
+  { value: "INTERMEDIO", label: "Intermedio" },
+  { value: "AVANZADO", label: "Avanzado" },
+] as const;
 
 // Normaliza errores de API para mostrarlos como mensajes legibles.
 function getErrorMessage(error: unknown, fallback: string) {
@@ -150,7 +154,7 @@ export default function Dashboard() {
   // Deriva opciones y porcentajes para los gráficos a partir de los datos cargados.
   const startedLabs = labs.filter((lab) => lab.estatus === "COMENZADO");
   const levels = useMemo(
-    () => LEVELS.filter((topicLevel) => topics.some((topic) => topic.nivel === topicLevel)),
+    () => LEVELS.filter(({ value }) => topics.some((topic) => topic.nivel === value)),
     [topics]
   );
   const visibleTopics = useMemo(
@@ -236,9 +240,9 @@ export default function Dashboard() {
               className="mb-4 ml-2 mt-2"
             >
               <option value="">Todos los niveles</option>
-              {levels.map((topicLevel) => (
-                <option key={topicLevel} value={topicLevel}>
-                  {topicLevel}
+              {levels.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
                 </option>
               ))}
             </DesplegableFiltro>

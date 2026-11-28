@@ -33,6 +33,52 @@ TecLab es una plataforma web de laboratorios virtuales para el aprendizaje guiad
 | Tablas | TanStack Table |
 | Artículos relacionados | API de búsqueda de Wikipedia en español |
 
+## Arquitectura
+
+TecLab usa una arquitectura cliente-servidor. La interfaz es una SPA en React que consume la API REST del backend para los datos educativos y de progreso. La autenticación y los perfiles se gestionan con Supabase; el contenido de laboratorios y el avance se almacenan en PostgreSQL, consultado por el backend.
+
+```mermaid
+flowchart LR
+  subgraph Cliente["Cliente web (React + TypeScript)"]
+    UI["Páginas y componentes"]
+    Services["Servicios y cliente API"]
+    State["Zustand<br/>sesión y simuladores"]
+    LocalStorage["localStorage<br/>estado de simuladores"]
+    UI --> Services
+    UI --> State
+    State <--> LocalStorage
+  end
+
+  subgraph Supabase
+    Auth["Supabase Auth"]
+    Profiles["Perfiles"]
+    Login["Edge Function<br/>login-numero-control"]
+    Auth --- Profiles
+    Login --> Auth
+  end
+
+  API["Backend REST<br/>Express (/api)"]
+  DB[("PostgreSQL<br/>laboratorios, prácticas<br/>y progreso")]
+  Wikipedia["Wikipedia en español"]
+
+  Services -->|"sesión y perfil"| Auth
+  Services -->|"inicio con número de control"| Login
+  Services -->|"JSON + Bearer token"| API
+  API -->|"valida token"| Auth
+  API --> DB
+  Services -->|"búsqueda de conceptos"| Wikipedia
+```
+
+### Responsabilidades y flujo de datos
+
+- **Presentación y navegación:** `src/pages/` compone las pantallas; `src/components/` contiene elementos reutilizables de interfaz, navegación, dashboard, simuladores y evaluaciones. `src/routes/` define las rutas y protege las pantallas que requieren sesión.
+- **Autenticación:** `src/services/authService.ts` usa Supabase Auth para registro, sesión y recuperación de contraseña, y consulta el perfil. El inicio de sesión con número de control pasa por la Edge Function `login-numero-control`. `src/store/authStore.ts` mantiene el usuario y restaura la sesión al iniciar la aplicación.
+- **Datos de la aplicación:** las páginas llaman a `src/api/catalog.ts`, que centraliza las solicitudes HTTP y adjunta el token de Supabase. El backend de `backend/server.js` expone `/api`, valida el token para operaciones protegidas y consulta PostgreSQL mediante `pg`. Allí se gestionan el catálogo, el progreso por usuario y los intentos de evaluación.
+- **Prácticas virtuales:** los motores de `src/utils/` ejecutan las simulaciones en el cliente. `src/store/practiceStore.ts` conserva su estado en `localStorage`, separado por usuario y práctica; `src/hooks/usePracticeSession.ts` sincroniza los objetivos completados con el backend cuando hay una sesión autenticada.
+- **Contenido externo:** `src/services/wikipediaService.ts` consulta directamente la API de Wikipedia en español para obtener conceptos relacionados con los laboratorios.
+
+En resumen, una pantalla solicita datos al cliente API; este obtiene la sesión actual y envía el token al backend. El backend valida la identidad cuando corresponde, realiza las consultas a PostgreSQL y devuelve JSON. Supabase se ocupa de identidad y perfiles, mientras que el simulador mantiene una copia local de la sesión de práctica y sincroniza su progreso.
+
 ## Requisitos
 
 - Node.js 20.19+ o 22.12+
